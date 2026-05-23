@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>e-Arsip Digital</title>
+    <style>
+        body { font-family: Arial; margin: 0; background: #f0f2f5; }
+        .login-page { display: flex; min-height: 100vh; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+        .login-box { background: white; padding: 40px; border-radius: 12px; width: 350px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center; }
+        .login-box h2 { color: #1e3a8a; margin-top: 0; }
+        .login-box input { width: 100%; padding: 12px; margin: 8px 0 15px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .login-box button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .sidebar { width: 240px; background: white; height: 100vh; position: fixed; border-right: 1px solid #e2e8f0; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #e2e8f0; background: #1e3a8a; color: white; }
+        .user-info { padding: 15px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+        .nav a { display: block; padding: 12px 15px; color: #334155; text-decoration: none; border-left: 3px solid transparent; }
+        .nav a:hover { background: #f1f5f9; }
+        .nav a.active { background: #eff6ff; border-left-color: #2563eb; color: #2563eb; font-weight: bold; }
+        .content { margin-left: 240px; padding: 25px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
+        th { background: #f8fafc; }
+        input, textarea { width: 100%; padding: 10px; margin: 5px 0 15px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        button.btn-primary { padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .stat-box { display: inline-block; padding: 20px 30px; border-radius: 8px; margin-right: 15px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+        .badge-masuk { background: #dcfce7; color: #166534; }
+        .badge-keluar { background: #ffedd5; color: #9a3412; }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="login-page">
+    <div class="login-box">
+        <h2>📁 e-Arsip Digital</h2>
+        <p style="color:#64748b;">Sistem Kearsipan Administration</p>
+        <form id="frmLogin">
+            <input type="text" id="userIn" required placeholder="Username">
+            <input type="password" id="passIn" required placeholder="Password">
+            <button type="submit">🚀 LOGIN</button>
+        </form>
+        <p id="errMsg" style="color:red;display:none;">❌ Username atau Password salah!</p>
+        <hr style="margin:20px 0;">
+        <p style="font-size:12px;color:#64748b;"> Coba user: <b>siti01</b> pass: <b>siti2024</b></p>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appPage" style="display:none;">
+    <div class="sidebar">
+        <div class="sidebar-header"><b>📁 e-Arsip</b></div>
+        <div class="user-info">👤 <span id="displayUser"></span><br>📧 <span id="displayRole"></span></div>
+        <div class="nav">
+            <a href="#" onclick="page('dash')" id="navDash" class="active">📊 Dashboard</a>
+            <a href="#" onclick="page('masuk')" id="navMasuk">📥 Surat Masuk</a>
+            <a href="#" onclick="page('keluar')" id="navKeluar">📤 Surat Keluar</a>
+            <a href="#" onclick="page('data')" id="navData">💾 Database Arsip</a>
+            <a href="#" onclick="page('users')" id="navUsers">👥 Kelola User</a>
+        </div>
+        <div style="padding:15px;border-top:1px solid #e2e8f0;">
+            <button onclick="logout()" style="background:none;border:none;color:#dc2626;cursor:pointer;width:100%;text-align:left;">🚪 Logout</button>
+        </div>
+    </div>
+    <div class="content">
+        <h2 id="title" style="margin-top:0;color:#1e293b;">Dashboard</h2>
+        <div id="isi"></div>
+    </div>
+</div>
+
+<script>
+// ============================================
+// 30 USER ADMINISTRASI - PASTE DI BAWAH INI:
+// ============================================
+var users = [
+    {user:"admin",pass:"admin123",name:"Administrator",role:"Admin Utama"},
+    {user:"siti01",pass:"siti2024",name:"Siti Aminah",role:"Staf Administration"},
+    {user:"budi02",pass:"budi2024",name:"Budi Santoso",role:"Staf Administration"},
+    {user:"dewi03",pass:"dewi2024",name:"Dewi Lestari",role:"Staf Administration"},
+    {user:"adi04",pass:"adi2024",name:"Adi Prasetyo",role:"Staf Administration"},
+    {user:"rika05",pass:"rika2024",name:"Rika Susilowati",role:"Staf Administration"},
+    {user:"toni06",pass:"toni2024",name:"Toni Hermawan",role:"Staf Administration"},
+    {user:"sari07",pass:"sari2024",name:"Sari Handayani",role:"Staf Administration"},
+    {user:"doni08",pass:"doni2024",name:"Doni Maulana",role:"Staf Administration"},
+    {user:"fitri09",pass:"fitri2024",name:"Fitri Rahmawati",role:"Staf Administration"},
+    {user:"ardi10",pass:"ardi2024",name:"Ardi Wijaya",role:"Staf Administration"},
+    {user:"lina11",pass:"lina2024",name:"Lina Kartika",role:"Staf Administration"},
+    {user:"joko12",pass:"joko2024",name:"Joko Susanto",role:"Staf Administration"},
+    {user:"ani13",pass:"ani2024",name:"Ani Suharti",role:"Staf Administration"},
+    {user:"andi14",pass:"andi2024",name:"Andi Setiawan",role:"Staf Administration"},
+    {user:"rina15",pass:"rina2024",name:"Rina Marlina",role:"Staf Administration"},
+    {user:"hendi16",pass:"hendi2024",name:"Hendri Gunawan",role:"Staf Administration"},
+    {user:"yuni17",pass:"yuni2024",name:"Yuniarningsih",role:"Staf Administration"},
+    {user:"feri18",pass:"feri2024",name:"Feri Akbar",role:"Staf Administration"},
+    {user:"diah19",pass:"diah2024",name:"Diah Kusumawati",role:"Staf Administration"},
+    {user:"wawan20",pass:"wawan2024",name:"Wawan Setiadi",role:"Staf Administration"},
+    {user:"tika21",pass:"tika2024",name:"Tika Wulandari",role:"Staf Administration"},
+    {user:"rase22",pass:"rase2024",name:"Rase Pratama",role:"Staf Administration"},
+    {user:"nisa23",pass:"nisa2024",name:"Nisa Hidayah",role:"Staf Administration"},
+    {user:"arya24",pass:"arya2024",name:"Arya Dharma",role:"Staf Administration"},
+    {user:"uni25",pass:"uni2024",name:"Yuni Astuti",role:"Staf Administration"},
+    {user:"bimo26",pass:"bimo2024",name:"Bimo Adrianto",role:"Staf Administration"},
+    {user:"lusi27",pass:"lusi2024",name:"Lusi Pramesti",role:"Staf Administration"},
+    {user:"eko28",pass:"eko2024",name:"Eko Nurhadi",role:"Staf Administration"},
+    {user:"ica29",pass:"ica2024",name:"Ica Firdausi",role:"Staf Administration"}
+];
+
+var currentUser = null;
+var currentPage = "dash";
+
+function getData() { return JSON.parse(localStorage.getItem("arsipData")) || []; }
+function saveData(d) { localStorage.setItem("arsipData", JSON.stringify(d)); }
+
+// ============================================
+// LOGIN SYSTEM
+// ============================================
+document.getElementById("frmLogin").onsubmit = function(e) {
+    e.preventDefault();
+    var u = document.getElementById("userIn").value;
+    var p = document.getElementById("passIn").value;
+    
+    var found = users.find(function(x) { return x.user === u && x.pass === p; });
+    
+    if (found) {
+        currentUser = found;
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("appPage").style.display = "flex";
+        document.getElementById("displayUser").innerText = found.name;
+        document.getElementById("displayRole").innerText = found.role;
+        page("dash");
+    } else {
+        document.getElementById("errMsg").style.display = "block";
+    }
+};
+
+function logout() { location.reload(); }
+
+function page(p) {
+    currentPage = p;
+    var navs = ["navDash","navMasuk","navKeluar","navData","navUsers"];
+    navs.forEach(function(n){ document.getElementById(n).className = ""; });
+    
+    var titles = {dash:"Dashboard",masuk:"Input Surat Masuk",keluar:"Input Surat Keluar",data:"Database Arsip",users:"Kelola Pengguna"};
+    document.getElementById("title").innerText = titles[p];
+    document.getElementById(p=="dash"?"navDash":p=="masuk"?"navMasuk":p=="keluar"?"navKeluar":p=="data"?"navData":"navUsers").className = "active";
+    
+    var contents = {dash:renderDash(),masuk:renderForm("Masuk"),keluar:renderForm("Keluar"),data:renderData(),users:renderUsers()};
+    document.getElementById("isi").innerHTML = contents[p];
+}
+
+function renderDash() {
+    var d = getData();
+    var masuk = d.filter(function(x){return x.type=="Masuk"}).length;
+    var keluar = d.filter(function(x){return x.type=="Keluar"}).length;
+    return "<div style='margin-bottom:20px;'>"+
+        "<div class='stat-box' style='background:#dbeafe;'><b style='font-size:28px;color:#1e40af;'>"+d.length+"</b><br>Total Arsip</div>"+
+        "<div class='stat-box' style='background:#dcfce7;'><b style='font-size:28px;color:#166534;'>"+masuk+"</b><br>Surat Masuk</div>"+
+        "<div class='stat-box' style='background:#ffedd5;'><b style='font-size:28px;color:#9a3412;'>"+keluar+"</b><br>Surat Keluar</div>"+
+    "</div>"+
+    "<div class='card'><h3>📋 Arsip Terbaru</h3><table><tr><th>No Surat</th><th>Jenis</th><th>Perihal</th><th>Tanggal</th><th>Petugas</th></tr>"+
+    (d.length==0?"<tr><td colspan=5>Belum ada data</td></tr>":d.slice(0,8).map(function(l){return "<tr><td>"+l.no+"</td><td><span class='badge "+(l.type=="Masuk"?"badge-masuk":"badge-keluar")+"'>"+l.type+"</span></td><td>"+l.perihal+"</td><td>"+l.tgl+"</td><td>"+l.petugas+"</td></tr>"}).join(""))+"</table></div>";
+}
+
+function renderForm(type) {
+    var pengirim = type=="Masuk"?"Pengirim":"Penerima";
+    return "<div class='card' style='max-width:550px;'><h3>📝 Form "+type+"</h3><form onsubmit='simpan(event,\""+type+"\")'>"+
+        "No Surat: <input type='text' name='no' required>"+
+        "Tanggal: <input type='date' name='tgl' required>"+
+        pengirim+": <input type='text' name='sender' required>"+
+        "Perihal: <textarea name='perihal' required></textarea>"+
+        "<button type='submit' class='btn-primary'>💾 SIMPAN DATA</button></form></div>";
+}
+
+function renderData() {
+    var d = getData();
+    return "<input type='text' id='cari' onkeyup='cari()' placeholder='Cari...' style='width:250px;padding:10px;margin-bottom:15px;border:1px solid #cbd5e1;border-radius:6px;'>"+
+        "<div class='card'><table id='tbl'><tr><th>No</th><th>No Surat</th><th>Jenis</th><th>Perihal</th><th>Tanggal</th><th>Petugas</th></tr>"+
+    (d.length==0?"<tr><td colspan=6>Data kosong</td></tr>":d.map(function(l,i){return "<tr><td>"+(i+1)+"</td><td>"+l.no+"</td><td><span class='badge "+(l.type=="Masuk"?"badge-masuk":"badge-keluar")+"'>"+l.type+"</span></td><td>"+l.perihal+"</td><td>"+l.tgl+"</td><td>"+l.petugas+"</td></tr>"}).join(""))+"</table></div>";
+}
+
+function renderUsers() {
+    return "<div class='card'><h3>👥 Daftar Pengguna ("+users.length+" User)</h3><table><tr><th>No</th><th>Username</th><th>Nama</th><th>Role</th><th>Password</th></tr>"+
+        users.map(function(u,i){return "<tr><td>"+(i+1)+"</td><td>"+u.user+"</td><td>"+u.name+"</td><td>"+u.role+"</td><td>"+u.pass+"</td></tr>"}).join("")+"</table></div>";
+}
+
+function simpan(e, type) {
+    e.preventDefault();
+    var f = e.target;
+    var dt = { type: type, no: f.no.value, tgl: f.tgl.value, sender: f.sender.value, perkara: f.perihal.value, petugas: currentUser.name };
+    var d = getData();
+    d.unshift(dt);
+    saveData(d);
+    alert("Tersimpan!");
+    page("data");
+}
+
+function cari() {
+    var i = document.getElementById("cari").value.toLowerCase();
+    var t = document.getElementById("tbl");
+    var tr = t.getElementsByTagName("tr");
+    for (var j = 1; j < tr.length; j++) tr[j].style.display = tr[j].textContent.toLowerCase().indexOf(i) > -1 ? "" : "none";
+}
+</script>
+
+</body>
+</html>
